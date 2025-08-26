@@ -1,0 +1,87 @@
+ERROR:errors:HTTP error 404: Not Found
+2025-08-27 04:59:33,694 - main - INFO - generate_presentation:1687 - Session ed3216ff: Starting generation - 1422 chars, gemini API
+INFO:main:Session ed3216ff: Starting generation - 1422 chars, gemini API
+2025-08-27 04:59:33,694 - main - INFO - process_text:516 - Processing 1422 chars with gemini API, topic: technology
+INFO:main:Processing 1422 chars with gemini API, topic: technology
+2025-08-27 04:59:40,306 - main - INFO - _parse_llm_response:803 - Successfully parsed LLM response: 6 slides
+INFO:main:Successfully parsed LLM response: 6 slides
+2025-08-27 04:59:40,313 - main - INFO - process_text:527 - Successfully processed text with gemini on attempt 1
+INFO:main:Successfully processed text with gemini on attempt 1
+2025-08-27 04:59:40,357 - main - INFO - _extract_theme_colors:947 - Extracted 5 theme colors
+INFO:main:Extracted 5 theme colors
+2025-08-27 04:59:40,359 - main - INFO - _extract_font_scheme:1064 - Extracted font scheme: {'title': 'Calibri', 'body': 'Calibri', 'major': 'Calibri', 'minor': 'Calibri'}
+INFO:main:Extracted font scheme: {'title': 'Calibri', 'body': 'Calibri', 'major': 'Calibri', 'minor': 'Calibri'}
+2025-08-27 04:59:40,363 - main - INFO - _extract_background_styles:1120 - Extracted 0 background colors
+INFO:main:Extracted 0 background colors
+2025-08-27 04:59:40,388 - main - INFO - _extract_shape_styles:1169 - Extracted 10 shape styles
+INFO:main:Extracted 10 shape styles
+2025-08-27 04:59:40,392 - main - INFO - _extract_template_images:1225 - Extracted 2 images from template
+INFO:main:Extracted 2 images from template
+2025-08-27 04:59:40,393 - main - INFO - generate_presentation:1270 - Generating presentation with error-handled style preservation
+INFO:main:Generating presentation with error-handled style preservation
+2025-08-27 04:59:40,393 - main - INFO - _clear_template_slides:1469 - Cleared 2 template slides
+INFO:main:Cleared 2 template slides
+2025-08-27 04:59:40,404 - main - WARNING - _create_styled_title_slide:1367 - Title slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_apply_template_subtitle_formatting'
+WARNING:main:Title slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_apply_template_subtitle_formatting'
+2025-08-27 04:59:40,405 - main - INFO - _create_styled_title_slide:1370 - Created styled title slide: AI: Transforming Modern Business
+INFO:main:Created styled title slide: AI: Transforming Modern Business
+2025-08-27 04:59:40,410 - main - WARNING - _create_styled_content_slide:1402 - Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+WARNING:main:Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+2025-08-27 04:59:40,414 - main - WARNING - _create_styled_content_slide:1409 - Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+WARNING:main:Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+2025-08-27 04:59:40,414 - main - WARNING - _create_styled_content_slide:1415 - Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+WARNING:main:Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+2025-08-27 04:59:40,415 - main - INFO - _create_styled_content_slide:1417 - Created styled content slide: AI: The New Business Landscape
+INFO:main:Created styled content slide: AI: The New Business Landscape
+2025-08-27 04:59:40,418 - main - WARNING - _create_styled_content_slide:1402 - Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+WARNING:main:Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+2025-08-27 04:59:40,418 - main - WARNING - _create_styled_content_slide:1409 - Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+WARNING:main:Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+2025-08-27 04:59:40,422 - main - WARNING - _create_styled_content_slide:1415 - Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+WARNING:main:Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+2025-08-27 04:59:40,422 - main - INFO - _create_styled_content_slide:1417 - Created styled content slide: Key AI Applications
+INFO:main:Created styled content slide: Key AI Applications
+2025-08-27 04:59:40,425 - main - WARNING - _create_styled_content_slide:1402 - Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+WARNING:main:Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+2025-08-27 04:59:40,425 - main - WARNING - _create_styled_content_slide:1409 - Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+WARNING:main:Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+2025-08-27 04:59:40,425 - main - WARNING - _create_styled_content_slide:1415 - Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+WARNING:main:Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+2025-08-27 04:59:40,425 - main - INFO - _create_styled_content_slide:1417 - Created styled content slide: Benefits of AI Adoption
+INFO:main:Created styled content slide: Benefits of AI Adoption
+2025-08-27 04:59:40,435 - main - WARNING - _create_styled_content_slide:1402 - Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+WARNING:main:Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+2025-08-27 04:59:40,438 - main - WARNING - _create_styled_content_slide:1409 - Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+WARNING:main:Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+2025-08-27 04:59:40,438 - main - WARNING - _create_styled_content_slide:1415 - Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+WARNING:main:Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+2025-08-27 04:59:40,438 - main - INFO - _create_styled_content_slide:1417 - Created styled content slide: Navigating AI Challenges
+INFO:main:Created styled content slide: Navigating AI Challenges
+2025-08-27 04:59:40,443 - main - WARNING - _create_styled_content_slide:1402 - Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+WARNING:main:Content slide placeholder error: 'AdvancedPowerPointGenerator' object has no attribute '_populate_styled_content'
+2025-08-27 04:59:40,448 - main - WARNING - _create_styled_content_slide:1409 - Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+WARNING:main:Image addition failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_template_images_to_slide'
+2025-08-27 04:59:40,452 - main - WARNING - _create_styled_content_slide:1415 - Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+WARNING:main:Speaker notes failed: 'AdvancedPowerPointGenerator' object has no attribute '_add_styled_speaker_notes'
+2025-08-27 04:59:40,453 - main - INFO - _create_styled_content_slide:1417 - Created styled content slide: The Future of AI in Business
+INFO:main:Created styled content slide: The Future of AI in Business
+2025-08-27 04:59:40,457 - main - ERROR - generate_presentation:1305 - Failed to create slide 6: 'AdvancedPowerPointGenerator' object has no attribute '_create_styled_summary_slide'
+ERROR:main:Failed to create slide 6: 'AdvancedPowerPointGenerator' object has no attribute '_create_styled_summary_slide'
+2025-08-27 04:59:40,457 - main - WARNING - generate_presentation:1316 - Image application failed: 'AdvancedPowerPointGenerator' object has no attribute '_apply_template_images'
+WARNING:main:Image application failed: 'AdvancedPowerPointGenerator' object has no attribute '_apply_template_images'
+2025-08-27 04:59:40,473 - main - INFO - generate_presentation:1337 - Successfully generated presentation: 6 slides
+INFO:main:Successfully generated presentation: 6 slides
+2025-08-27 04:59:40,488 - main - INFO - _extract_theme_colors:947 - Extracted 5 theme colors
+INFO:main:Extracted 5 theme colors
+2025-08-27 04:59:40,493 - main - INFO - _extract_font_scheme:1064 - Extracted font scheme: {'title': 'Calibri', 'body': 'Calibri', 'major': 'Calibri', 'minor': 'Calibri'}
+INFO:main:Extracted font scheme: {'title': 'Calibri', 'body': 'Calibri', 'major': 'Calibri', 'minor': 'Calibri'}
+2025-08-27 04:59:40,497 - main - INFO - _extract_background_styles:1120 - Extracted 0 background colors
+INFO:main:Extracted 0 background colors
+2025-08-27 04:59:40,514 - main - INFO - _extract_shape_styles:1169 - Extracted 10 shape styles
+INFO:main:Extracted 10 shape styles
+2025-08-27 04:59:40,517 - main - INFO - _extract_template_images:1225 - Extracted 2 images from template
+INFO:main:Extracted 2 images from template
+2025-08-27 04:59:40,521 - main - INFO - generate_presentation:1713 - Session ed3216ff: Generation completed successfully
+INFO:main:Session ed3216ff: Generation completed successfully
+2025-08-27 04:59:43,713 - main - INFO - download_presentation:1808 - Session ed3216ff: Secure presentation download
+INFO:main:Session ed3216ff: Secure presentation download

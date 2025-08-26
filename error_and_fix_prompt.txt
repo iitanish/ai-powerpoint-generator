@@ -1,0 +1,39 @@
+Prompt for Perplexity (or any LLM):
+
+---
+
+I encountered this Python error while running a FastAPI app:
+
+```
+if clean_response.startswith('```
+                                 ^
+SyntaxError: unterminated string literal (detected at line XXX)
+```
+
+Cause:
+This error happens when you write an if statement like `if clean_response.startswith('````, but forget to close the string with a matching quote and parenthesis.
+
+Fix:
+Always close the string and parenthesis in such statements. For example, instead of:
+
+```python
+if clean_response.startswith('```
+```
+
+write:
+
+```python
+if clean_response.startswith('```json'):
+    clean_response = clean_response[7:]
+    if clean_response.endswith('```'):
+        clean_response = clean_response[:-3]
+    clean_response = clean_response.strip()
+elif clean_response.startswith('```'):
+    clean_response = clean_response[3:]
+    if clean_response.endswith('```'):
+        clean_response = clean_response[:-3]
+    clean_response = clean_response.strip()
+```
+
+Summary:
+Always ensure string literals and parentheses are properly closed in Python, especially in `startswith()` and similar function calls.
