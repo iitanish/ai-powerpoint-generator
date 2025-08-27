@@ -10,6 +10,8 @@ from datetime import datetime
 import uuid
 import requests
 import json
+import asyncio
+import time
 from contextlib import asynccontextmanager
 
 # PowerPoint generation imports
@@ -114,7 +116,7 @@ TOPIC_THEMES = {
 }
 
 class EnhancedLLMProcessor:
-    """Enhanced LLM processor with improved prompts for better content structure"""
+    """Enhanced LLM processor with improved prompts and robust error handling"""
     
     def __init__(self):
         self.providers = {
@@ -133,6 +135,28 @@ class EnhancedLLMProcessor:
             return 'gemini'
         else:
             return 'openai'
+    
+    def validate_api_key(self, api_key: str, provider: str) -> bool:
+        """Validate API key format"""
+        if not api_key or not api_key.strip():
+            raise HTTPException(status_code=400, detail="API key cannot be empty")
+        
+        if provider == 'openai':
+            if not (api_key.startswith('sk-proj-') or api_key.startswith('sk-')):
+                raise HTTPException(status_code=400, detail="Invalid OpenAI API key format. Must start with 'sk-'")
+            
+            if len(api_key) < 20:
+                raise HTTPException(status_code=400, detail="OpenAI API key appears to be incomplete")
+        
+        elif provider == 'gemini':
+            if not api_key.startswith('AIza'):
+                raise HTTPException(status_code=400, detail="Invalid Gemini API key format. Must start with 'AIza'")
+        
+        elif provider == 'anthropic':
+            if not api_key.startswith('sk-ant-'):
+                raise HTTPException(status_code=400, detail="Invalid Anthropic API key format. Must start with 'sk-ant-'")
+        
+        return True
     
     def detect_topic_category(self, text_content: str) -> str:
         """Detect topic category for theme selection"""
@@ -161,6 +185,10 @@ class EnhancedLLMProcessor:
         """Process text with enhanced prompts for better content quality"""
         
         provider = self.detect_provider(api_key)
+        
+        # Validate API key first
+        self.validate_api_key(api_key, provider)
+        
         topic_category = self.detect_topic_category(text_content)
         
         logger.info(f"Processing with {provider} API, detected topic: {topic_category}")
@@ -175,9 +203,38 @@ class EnhancedLLMProcessor:
             parsed_result["topic_category"] = topic_category
             
             return parsed_result
+            
+        except HTTPException:
+            # Re-raise HTTP exceptions as they're already handled
+            raise
+            
         except Exception as e:
-            logger.error(f"LLM processing error: {str(e)}")
-            raise HTTPException(status_code=400, detail=f"LLM API error: {str(e)}")
+            error_msg = str(e).lower()
+            
+            if "rate limit" in error_msg or "429" in error_msg:
+                if provider == 'openai':
+                    raise HTTPException(
+                        status_code=429, 
+                        detail="OpenAI rate limit exceeded. Please wait a few minutes and try again, or consider upgrading your API plan. Alternatively, try using a Gemini API key."
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=429, 
+                        detail=f"{provider.title()} rate limit exceeded. Please wait and try again."
+                    )
+            elif "invalid api key" in error_msg or "401" in error_msg:
+                raise HTTPException(
+                    status_code=401, 
+                    detail=f"Invalid {provider.title()} API key. Please check your API key."
+                )
+            elif "quota" in error_msg or "billing" in error_msg:
+                raise HTTPException(
+                    status_code=402, 
+                    detail=f"{provider.title()} quota exceeded. Please check your billing and usage limits."
+                )
+            else:
+                logger.error(f"LLM processing error: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"LLM API error: {str(e)}")
     
     def _build_enhanced_prompt(self, text_content: str, guidance: str, topic_category: str) -> str:
         """Build enhanced prompt for better content structuring"""
@@ -232,8 +289,8 @@ ENHANCED RULES:
 
         return base_prompt
     
-    async def _call_openai(self, prompt: str, api_key: str) -> str:
-        """Enhanced OpenAI API call"""
+    async def _call_openai(self, prompt: str, api_key: str, max_retries: int = 3) -> str:
+        """Enhanced OpenAI API call with retry logic and rate limiting"""
         url = "https://api.openai.com/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -249,11 +306,58 @@ ENHANCED RULES:
             "frequency_penalty": 0.1
         }
         
-        response = requests.post(url, headers=headers, json=data, timeout=45)
-        response.raise_for_status()
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"OpenAI API request attempt {attempt + 1}/{max_retries}")
+                response = requests.post(url, headers=headers, json=data, timeout=60)
+                
+                # Handle rate limiting specifically
+                if response.status_code == 429:
+                    retry_after = int(response.headers.get('retry-after', 60))
+                    logger.warning(f"Rate limited. Waiting {retry_after} seconds before retry {attempt + 1}/{max_retries}")
+                    
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(retry_after)
+                        continue
+                    else:
+                        raise HTTPException(
+                            status_code=429, 
+                            detail=f"OpenAI rate limit exceeded. Please try again in {retry_after} seconds or upgrade your API plan."
+                        )
+                
+                # Handle other HTTP errors
+                if response.status_code == 401:
+                    raise HTTPException(status_code=401, detail="Invalid OpenAI API key. Please check your API key.")
+                elif response.status_code == 403:
+                    raise HTTPException(status_code=403, detail="OpenAI API access forbidden. Check your account status.")
+                elif response.status_code == 500:
+                    raise HTTPException(status_code=500, detail="OpenAI API server error. Please try again later.")
+                
+                response.raise_for_status()
+                result = response.json()
+                
+                if 'choices' not in result or not result['choices']:
+                    raise HTTPException(status_code=500, detail="Invalid response from OpenAI API")
+                
+                return result['choices'][0]['message']['content']
+                
+            except requests.exceptions.Timeout:
+                logger.warning(f"Request timeout on attempt {attempt + 1}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
+                    continue
+                else:
+                    raise HTTPException(status_code=408, detail="OpenAI API timeout. Please try again.")
+                    
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Request error on attempt {attempt + 1}: {str(e)}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                else:
+                    raise HTTPException(status_code=500, detail=f"OpenAI API connection error: {str(e)}")
         
-        result = response.json()
-        return result['choices'][0]['message']['content']
+        raise HTTPException(status_code=500, detail="Max retries exceeded for OpenAI API")
     
     async def _call_anthropic(self, prompt: str, api_key: str) -> str:
         """Enhanced Anthropic API call"""
@@ -271,11 +375,20 @@ ENHANCED RULES:
             "messages": [{"role": "user", "content": prompt}]
         }
         
-        response = requests.post(url, headers=headers, json=data, timeout=45)
-        response.raise_for_status()
-        
-        result = response.json()
-        return result['content'][0]['text']
+        try:
+            response = requests.post(url, headers=headers, json=data, timeout=45)
+            
+            if response.status_code == 429:
+                raise HTTPException(status_code=429, detail="Anthropic rate limit exceeded. Please try again later.")
+            elif response.status_code == 401:
+                raise HTTPException(status_code=401, detail="Invalid Anthropic API key.")
+            
+            response.raise_for_status()
+            result = response.json()
+            return result['content'][0]['text']
+            
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=500, detail=f"Anthropic API error: {str(e)}")
     
     async def _call_gemini(self, prompt: str, api_key: str) -> str:
         """Enhanced Gemini API call"""
@@ -292,11 +405,24 @@ ENHANCED RULES:
             }
         }
         
-        response = requests.post(url, headers=headers, json=data, timeout=45)
-        response.raise_for_status()
-        
-        result = response.json()
-        return result['candidates'][0]['content']['parts'][0]['text']
+        try:
+            response = requests.post(url, headers=headers, json=data, timeout=45)
+            
+            if response.status_code == 429:
+                raise HTTPException(status_code=429, detail="Gemini rate limit exceeded. Please try again later.")
+            elif response.status_code == 400:
+                raise HTTPException(status_code=400, detail="Invalid Gemini API key or request.")
+            
+            response.raise_for_status()
+            result = response.json()
+            
+            if 'candidates' not in result or not result['candidates']:
+                raise HTTPException(status_code=500, detail="Invalid response from Gemini API")
+                
+            return result['candidates'][0]['content']['parts'][0]['text']
+            
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
     
     def _parse_llm_response(self, response: str) -> dict:
         """Enhanced response parsing with better error handling"""
@@ -313,7 +439,6 @@ ENHANCED RULES:
                 clean_response = clean_response[3:]
                 if clean_response.endswith('```'):
                     clean_response = clean_response[:-3]
-                clean_response = clean_response.strip()
                 clean_response = clean_response.strip()
             
             parsed = json.loads(clean_response)
@@ -1283,7 +1408,7 @@ async def health_check():
             "✅ Shape style cataloging",
             "✅ Enhanced content structuring",
             "✅ Professional speaker notes",
-            "✅ Multi-LLM provider support"
+            "✅ Multi-LLM provider support with robust error handling"
         ]
     }
 
