@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.ico?v=1" sizes="any">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Text, Your Style — PPTX Generator</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0b1118;
+      --bg-soft: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.14);
+      --text: #e7eef6;
+      --text-dim: #b6c3d4;
+      --accent: #6aa3ff;
+      --chip: rgba(255,255,255,0.08);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7f9fc;
+        --bg-soft: #ffffff;
+        --border: #e6eaf0;
+        --text: #0f1720;
+        --text-dim: #5b6b80;
+        --accent: #3a77ff;
+        --chip: #f2f6ff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% 5%, rgba(88,124,255,0.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, rgba(123,255,206,0.18), transparent 60%),
+        var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: clamp(20px, 4vw, 40px) 20px 10px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.8vw, 2rem);
+      letter-spacing: 0.2px;
+    }
+    header p.note {
+      margin: 10px auto 0;
+      max-width: 900px;
+      color: var(--text-dim);
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 14px 16px 40px; }
+
+    .grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(6px);
+    }
+    .card h3 { margin: 0 0 10px; font-size: 1.05rem; }
+
+    label { display: block; font-weight: 600; margin: 10px 0 8px; }
+    textarea, input[type="text"], input[type="password"], input[type="number"], select {
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+    }
+    textarea { min-height: 220px; resize: vertical; }
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
+    }
+    input[type="file"] {
+      padding: 10px 8px;
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      width: 100%;
+      background: transparent;
+      color: var(--text);
+    }
+
+    select { appearance: none; background: var(--bg-soft); color: var(--text); cursor: pointer; }
+    option { background: var(--bg); color: var(--text); }
+
+    small { color: var(--text-dim); display: block; margin-top: 6px; }
+
+    .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+    button {
+      border: none; padding: 12px 16px; border-radius: 12px; font-weight: 700; cursor: pointer;
+      transition: transform .06s ease, filter .15s ease, opacity .15s ease;
+    }
+    .primary { background: var(--accent); color: white; }
+    .ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    button:active { transform: translateY(1px); }
+    .primary:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(0.2); }
+
+    .helper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 980px) { .helper { grid-template-columns: 1fr; } }
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 980px) { .two-col { grid-template-columns: 1fr; } }
+
+    .toggle { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-weight: 600; }
+    .toggle input { width: 18px; height: 18px; }
+
+    footer { margin-top: 28px; text-align: center; color: var(--text-dim); font-size: 0.92rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Text, Your Style — Auto-Generate a Presentation</h1>
+    <p class="note">Turn bulk text/Markdown into a PowerPoint that matches your template. Choose a provider, paste your key/token, optionally upload a .pptx/.potx template, and download the deck. Keys are never stored.</p>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <!-- Left: Content & Template -->
+      <section class="card">
+        <h3>Content</h3>
+        <label for="text">Your Text or Markdown</label>
+        <textarea id="text" name="text" placeholder="Paste your content here…" required></textarea>
+
+        <div class="two-col">
+          <div>
+            <label for="guidance">One-line Guidance (optional)</label>
+            <input id="guidance" name="guidance" type="text" placeholder="e.g., investor pitch deck, technical brief, visual-heavy summary"/>
+          </div>
+          <div>
+            <label for="num_slides">Number of slides</label>
+            <input id="num_slides" name="num_slides" type="number" inputmode="numeric" min="1" max="40" step="1" value="10" required/>
+            <small>1–40 slides</small>
+          </div>
+        </div>
+
+        <label for="template">Template/Presentation (.pptx/.potx) — Optional</label>
+        <input id="template" name="template" type="file" accept=".pptx,.potx"/>
+        <small>Leave empty to use a clean default deck.</small>
+
+        <label class="toggle" title="Copy the exact images from the uploaded presentation onto corresponding generated slides">
+          <input type="checkbox" id="reuse_images"/>
+          Reuse exact images from uploaded presentation
+        </label>
+      </section>
+
+      <!-- Right: Provider & Controls -->
+      <section class="card">
+        <h3>Provider & Settings</h3>
+
+        <label for="provider">LLM Provider</label>
+        <select id="provider" name="provider" required>
+          <option value="openai">OpenAI</option>
+          <option value="aipipe">AI Pipe (OpenAI-compatible)</option>
+          <option value="gemini">Gemini</option>
+          <option value="anthropic">Claude (Anthropic)</option>
+        </select>
+
+        <label id="api_key_label" for="api_key">API Key</label>
+        <input id="api_key" name="api_key" type="password" placeholder="Paste your key/token…" required/>
+
+        <label for="model">Model</label>
+        <select id="model" name="model" required></select>
+        <small id="model_hint"></small>
+
+        <div class="helper" style="margin-top:12px">
+          <div class="chip" id="helper_primary">Choose a provider to see setup tips.</div>
+          <div class="chip" id="helper_secondary">Your key/token is used only for this request and not logged.</div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="btn-generate" type="button" disabled>Generate .pptx</button>
+          <button class="ghost" id="btn-clear" type="button">Clear</button>
+          <div id="status" class="note"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer>MIT Licensed • Keys never stored • Template content is not copied unless you enable “Reuse exact images”</footer>
+  </div>
+
+  <script>
+    // Elements
+    const providerEl = document.getElementById('provider');
+    const apiKeyEl = document.getElementById('api_key');
+    const apiKeyLabelEl = document.getElementById('api_key_label');
+    const modelEl = document.getElementById('model');
+    const modelHintEl = document.getElementById('model_hint');
+    const helperPrimary = document.getElementById('helper_primary');
+    const helperSecondary = document.getElementById('helper_secondary');
+
+    const textEl = document.getElementById('text');
+    const guidanceEl = document.getElementById('guidance');
+    const templateEl = document.getElementById('template');
+    const reuseImagesEl = document.getElementById('reuse_images');
+    const numSlidesEl = document.getElementById('num_slides');
+
+    const btnGenerate = document.getElementById('btn-generate');
+    const btnClear = document.getElementById('btn-clear');
+    const statusEl = document.getElementById('status');
+
+    function applyProviderHints() {
+      const p = providerEl.value;
+      if (p === 'openai') {
+        apiKeyLabelEl.textContent = 'OpenAI API Key';
+        apiKeyEl.placeholder = 'sk-...';
+        helperPrimary.textContent = 'OpenAI: paste your OpenAI API key.';
+        helperSecondary.textContent = 'Models: GPT-4o family (e.g., gpt-4o-mini).';
+      } else if (p === 'aipipe') {
+        apiKeyLabelEl.textContent = 'AI Pipe Token';
+        apiKeyEl.placeholder = 'aipipe_token_...';
+        helperPrimary.textContent = 'AI Pipe: paste your AI Pipe token. Calls are routed via an OpenAI-compatible endpoint server-side.';
+        helperSecondary.textContent = 'Models: any OpenAI-style model ID supported by your AI Pipe account.';
+      } else if (p === 'gemini') {
+        apiKeyLabelEl.textContent = 'Gemini API Key';
+        apiKeyEl.placeholder = 'AI...';
+        helperPrimary.textContent = 'Gemini: paste your Google AI Studio key.';
+        helperSecondary.textContent = 'Models: try gemini-2.5-flash or gemini-1.5-pro.';
+      } else {
+        apiKeyLabelEl.textContent = 'Anthropic API Key';
+        apiKeyEl.placeholder = 'sk-ant-...';
+        helperPrimary.textContent = 'Claude: paste your Anthropic key.';
+        helperSecondary.textContent = 'Models: claude-3.5-sonnet-latest, claude-3-haiku.';
+      }
+    }
+
+    function applyModelOptions() {
+      const p = providerEl.value;
+      modelEl.innerHTML = '';
+      let models = [];
+      if (p === 'openai') {
+        models = [
+          { id: 'gpt-4o-mini', label: 'GPT-4o Mini (cheap & fast)' },
+          { id: 'gpt-4.1-nano', label: 'GPT-4.1 Nano' },
+          { id: 'gpt-4o', label: 'GPT-4o (full quality)' },
+        ];
+        modelHintEl.textContent = 'OpenAI official models.';
+      } else if (p === 'aipipe') {
+        models = [
+          { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+          { id: 'gpt-4.1-nano', label: 'GPT-4.1 Nano' },
+          { id: 'gpt-4o', label: 'GPT-4o' },
+        ];
+        modelHintEl.textContent = 'AI Pipe proxies OpenAI models.';
+      } else if (p === 'gemini') {
+        models = [
+          { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+          { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+          { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+        ];
+        modelHintEl.textContent = 'Gemini models via Google AI Studio.';
+      } else if (p === 'anthropic') {
+        models = [
+          { id: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet (latest)' },
+          { id: 'claude-3-haiku', label: 'Claude 3 Haiku (fast)' },
+        ];
+        modelHintEl.textContent = 'Anthropic Claude models.';
+      }
+      for (const m of models) {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.label;
+        modelEl.appendChild(opt);
+      }
+    }
+
+    function validateForm() {
+      const ok =
+        textEl.value.trim().length > 0 &&
+        apiKeyEl.value.trim().length > 0 &&
+        providerEl.value &&
+        modelEl.value &&
+        numSlidesEl.value &&
+        Number(numSlidesEl.value) >= 1 &&
+        Number(numSlidesEl.value) <= 40;
+      btnGenerate.disabled = !ok;
+    }
+
+    providerEl.addEventListener('change', () => { applyProviderHints(); applyModelOptions(); validateForm(); });
+    [textEl, apiKeyEl, modelEl, numSlidesEl].forEach(el => {
+      el.addEventListener('input', validateForm);
+      el.addEventListener('change', validateForm);
+    });
+
+    btnClear.onclick = () => {
+      textEl.value = '';
+      guidanceEl.value = '';
+      apiKeyEl.value = '';
+      templateEl.value = '';
+      reuseImagesEl.checked = false;
+      numSlidesEl.value = '10';
+      statusEl.textContent = '';
+      providerEl.selectedIndex = 0;
+      applyProviderHints();
+      applyModelOptions();
+      validateForm();
+    };
+
+    btnGenerate.onclick = async (e) => {
+      e.preventDefault();
+      if (btnGenerate.disabled) return;
+
+      btnGenerate.disabled = true;
+      const originalText = btnGenerate.textContent;
+      btnGenerate.textContent = 'Generating…';
+      statusEl.textContent = 'Generating…';
+
+      const fd = new FormData();
+      fd.append('text', textEl.value);
+      fd.append('guidance', guidanceEl.value);
+      fd.append('provider', providerEl.value);
+      fd.append('api_key', apiKeyEl.value);
+      fd.append('model', modelEl.value);
+      fd.append('num_slides', numSlidesEl.value);
+      fd.append('reuse_images', reuseImagesEl.checked ? 'true' : 'false');
+
+      if (templateEl.files && templateEl.files[0]) {
+        fd.append('template', templateEl.files[0]);
+      }
+
+      try {
+        const res = await fetch('/generate', { method: 'POST', body: fd });
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || 'Server error');
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'generated.pptx';
+        a.click();
+        URL.revokeObjectURL(url);
+        statusEl.textContent = 'Downloaded generated.pptx ✅';
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Error: ' + (err?.message || 'Unknown error');
+      } finally {
+        btnGenerate.disabled = false;
+        btnGenerate.textContent = originalText;
+        validateForm();
+      }
+    };
+
+    // Init
+    applyProviderHints();
+    applyModelOptions();
+    validateForm();
+  </script>
+</body>
+</html>
